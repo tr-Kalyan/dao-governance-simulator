@@ -11,20 +11,29 @@ contract GovernanceToken is ERC20, ERC20Votes {
     uint256 public constant INITIAL_SUPPLY = 1_000_000e18;
 
     address public governor;
+    address public immutable deployer;
 
     error GovernanceToken__NotGovernor();
+    error GovernanceToken__AlreadyInitialized();
+    error GovernanceToken__ZeroAddress();
     error GovernanceToken__MaxSupplyExceeded();
+    error GovernanceToken__NotDeployer();
 
-    modifier onlyGoverner() {
+    modifier onlyGovernor() {
         if (msg.sender != governor) revert GovernanceToken__NotGovernor();
         _;
     }
-    constructor(address _governor) ERC20("GovernanceToken", "GT") EIP712("GovernanceToken", "1"){
-        governor = _governor;
+    constructor() ERC20("GovernanceToken", "GT") EIP712("GovernanceToken", "1"){
         _mint(msg.sender, INITIAL_SUPPLY);
     }
 
-    function mint(address to, uint256 amount) external onlyGoverner {
+    function initializeGovernor(address _governor) external {
+        if (msg.sender != deployer) revert GovernanceToken__NotDeployer();
+        if (governor != address(0)) revert GovernanceToken__AlreadyInitialized();
+        if (_governor == address(0)) revert GovernanceToken__ZeroAddress();
+        governor = _governor;
+    }
+    function mint(address to, uint256 amount) external onlyGovernor {
         if (totalSupply() + amount > MAX_SUPPLY) revert GovernanceToken__MaxSupplyExceeded();
         _mint(to, amount);
     }
