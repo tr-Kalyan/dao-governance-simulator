@@ -24,6 +24,7 @@ contract GovernanceToken is ERC20, ERC20Votes {
         _;
     }
     constructor() ERC20("GovernanceToken", "GT") EIP712("GovernanceToken", "1"){
+        deployer = msg.sender;
         _mint(msg.sender, INITIAL_SUPPLY);
     }
 
