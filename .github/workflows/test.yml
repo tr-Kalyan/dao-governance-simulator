@@ -17,13 +17,15 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v4
         with:
           persist-credentials: false
           submodules: recursive
 
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly  
 
       - name: Show Forge version
         run: forge --version
@@ -36,3 +38,6 @@ jobs:
 
       - name: Run Forge tests
         run: forge test -vvv
+
+      - name: Run Forge coverage
+        run: forge coverage --report summary
