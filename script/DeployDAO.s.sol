@@ -29,7 +29,6 @@ import {DAOTreasury} from "../src/Treasury.sol";
  * 8. Renounce admin role — system fully decentralized
  */
 contract DeployDAO is Script {
-
     /*//////////////////////////////////////////////////////////////
                         DEPLOYMENT PARAMETERS
     //////////////////////////////////////////////////////////////*/
@@ -53,16 +52,14 @@ contract DeployDAO is Script {
                             RUN FUNCTION
     //////////////////////////////////////////////////////////////*/
 
-    function run() external returns (
-        GovernanceToken token,
-        DAOGovernor governor,
-        DAOTimelockController timelock,
-        DAOTreasury treasury
-    ) {
+    function run()
+        external
+        returns (GovernanceToken token, DAOGovernor governor, DAOTimelockController timelock, DAOTreasury treasury)
+    {
         address deployer = msg.sender;
 
         // Deterministic salts — unique per deployer
-        bytes32 tokenSalt    = keccak256(abi.encodePacked("GovernanceToken", deployer));
+        bytes32 tokenSalt = keccak256(abi.encodePacked("GovernanceToken", deployer));
         bytes32 timelockSalt = keccak256(abi.encodePacked("DAOTimelock", deployer));
         bytes32 governorSalt = keccak256(abi.encodePacked("DAOGovernor", deployer));
         bytes32 treasurySalt = keccak256(abi.encodePacked("DAOTreasury", deployer));
@@ -77,12 +74,7 @@ contract DeployDAO is Script {
 
         address precomputedTimelock = _precomputeAddress(
             type(DAOTimelockController).creationCode,
-            abi.encode(
-                MIN_TIMELOCK_DELAY,
-                new address[](0),
-                new address[](0),
-                deployer
-            ),
+            abi.encode(MIN_TIMELOCK_DELAY, new address[](0), new address[](0), deployer),
             timelockSalt,
             deployer
         );
@@ -102,12 +94,8 @@ contract DeployDAO is Script {
             deployer
         );
 
-        address precomputedTreasury = _precomputeAddress(
-            type(DAOTreasury).creationCode,
-            abi.encode(precomputedTimelock),
-            treasurySalt,
-            deployer
-        );
+        address precomputedTreasury =
+            _precomputeAddress(type(DAOTreasury).creationCode, abi.encode(precomputedTimelock), treasurySalt, deployer);
 
         console2.log("=== PRE-COMPUTED ADDRESSES ===");
         console2.log("Token    :", precomputedToken);
@@ -125,23 +113,13 @@ contract DeployDAO is Script {
         // Step 3: Deploy Timelock — proposers/executors empty, roles assigned later
         address[] memory proposers = new address[](0);
         address[] memory executors = new address[](0);
-        timelock = new DAOTimelockController{salt: timelockSalt}(
-            MIN_TIMELOCK_DELAY,
-            proposers,
-            executors,
-            deployer
-        );
+        timelock = new DAOTimelockController{salt: timelockSalt}(MIN_TIMELOCK_DELAY, proposers, executors, deployer);
         console2.log("Timelock deployed at:", address(timelock));
         require(address(timelock) == precomputedTimelock, "Timelock address mismatch");
 
         // Step 4: Deploy Governor with real token + timelock addresses
         governor = new DAOGovernor{salt: governorSalt}(
-            token,
-            timelock,
-            VOTING_DELAY,
-            VOTING_PERIOD,
-            PROPOSAL_THRESHOLD,
-            QUORUM_PERCENTAGE
+            token, timelock, VOTING_DELAY, VOTING_PERIOD, PROPOSAL_THRESHOLD, QUORUM_PERCENTAGE
         );
         console2.log("Governor deployed at:", address(governor));
         require(address(governor) == precomputedGovernor, "Governor address mismatch");
@@ -176,21 +154,15 @@ contract DeployDAO is Script {
      * @param deployer Address that will deploy the contract
      * @return Deterministic address where contract will land
      */
-    function _precomputeAddress(
-        bytes memory creationCode,
-        bytes memory constructorArgs,
-        bytes32 salt,
-        address deployer
-    ) internal pure returns (address) {
+    function _precomputeAddress(bytes memory creationCode, bytes memory constructorArgs, bytes32 salt, address deployer)
+        internal
+        pure
+        returns (address)
+    {
         bytes memory bytecode = abi.encodePacked(creationCode, constructorArgs);
         bytes32 bytecodeHash = keccak256(bytecode);
 
-        return address(uint160(uint256(keccak256(abi.encodePacked(
-            bytes1(0xff),
-            deployer,
-            salt,
-            bytecodeHash
-        )))));
+        return address(uint160(uint256(keccak256(abi.encodePacked(bytes1(0xff), deployer, salt, bytecodeHash)))));
     }
 
     /**
@@ -204,11 +176,7 @@ contract DeployDAO is Script {
      * CANCELLER_ROLE      → deployer for now, upgrade to Gnosis Safe later
      * TIMELOCK_ADMIN_ROLE → renounced — point of no return
      */
-    function _setupTimelockRoles(
-        DAOTimelockController _timelock,
-        address _governor,
-        address _deployer
-    ) internal {
+    function _setupTimelockRoles(DAOTimelockController _timelock, address _governor, address _deployer) internal {
         bytes32 proposerRole = _timelock.PROPOSER_ROLE();
         bytes32 executorRole = _timelock.EXECUTOR_ROLE();
         bytes32 cancellerRole = _timelock.CANCELLER_ROLE();
@@ -231,12 +199,7 @@ contract DeployDAO is Script {
     /**
      * @notice Logs final deployment summary
      */
-    function _logDeployment(
-        address _token,
-        address _governor,
-        address _timelock,
-        address _treasury
-    ) internal pure {
+    function _logDeployment(address _token, address _governor, address _timelock, address _treasury) internal pure {
         console2.log("\n=== DAO DEPLOYMENT SUMMARY ===");
         console2.log("GovernanceToken :", _token);
         console2.log("DAOGovernor     :", _governor);

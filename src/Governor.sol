@@ -6,7 +6,9 @@ import {Governor} from "@openzeppelin/contracts/governance/Governor.sol";
 import {GovernorSettings} from "@openzeppelin/contracts/governance/extensions/GovernorSettings.sol";
 import {GovernorCountingSimple} from "@openzeppelin/contracts/governance/extensions/GovernorCountingSimple.sol";
 import {GovernorVotes} from "@openzeppelin/contracts/governance/extensions/GovernorVotes.sol";
-import {GovernorVotesQuorumFraction} from "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
+import {
+    GovernorVotesQuorumFraction
+} from "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
 import {GovernorTimelockControl} from "@openzeppelin/contracts/governance/extensions/GovernorTimelockControl.sol";
 import {TimelockController} from "@openzeppelin/contracts/governance/TimelockController.sol";
 import {IVotes} from "@openzeppelin/contracts/governance/utils/IVotes.sol";
@@ -19,17 +21,17 @@ import {IVotes} from "@openzeppelin/contracts/governance/utils/IVotes.sol";
  * the proposal is queued in the Timelock and executed after a delay
  * @dev Extends OpenZeppelin's modular Governor contracts
  * No single human has admin rights - the contract itself is the authority.
- * 
+ *
  * Governance Flow:
  * Propose → Voting Period → Queue in Timelock → Execute after delay
  */
-contract DAOGovernor is 
-   Governor,
-   GovernorSettings,
-   GovernorCountingSimple,
-   GovernorVotes,
-   GovernorVotesQuorumFraction,
-   GovernorTimelockControl
+contract DAOGovernor is
+    Governor,
+    GovernorSettings,
+    GovernorCountingSimple,
+    GovernorVotes,
+    GovernorVotesQuorumFraction,
+    GovernorTimelockControl
 {
     /*//////////////////////////////////////////////////////////////
                             CONSTRUCTOR
@@ -41,7 +43,7 @@ contract DAOGovernor is
         uint32 _votingPeriod,
         uint256 _proposalThreshold,
         uint256 _quorumPercentage
-    ) 
+    )
         Governor("DAOGovernor")
         GovernorSettings(_votingDelay, _votingPeriod, _proposalThreshold)
         GovernorVotes(_token)
@@ -90,7 +92,12 @@ contract DAOGovernor is
      * @notice Returns whether a proposal needs to be queued in the timelock before execution
      * @dev GovernorTimelockControl requires queuing — proposals cannot skip the timelock
      */
-    function proposalNeedsQueuing(uint256 proposalId) public view override(Governor, GovernorTimelockControl) returns (bool) {
+    function proposalNeedsQueuing(uint256 proposalId)
+        public
+        view
+        override(Governor, GovernorTimelockControl)
+        returns (bool)
+    {
         return super.proposalNeedsQueuing(proposalId);
     }
 

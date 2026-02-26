@@ -13,7 +13,7 @@ import {DeployDAO} from "../../script/DeployDAO.s.sol";
  * @notice Unit tests for GovernanceToken contract
  * @dev Tests are isolated - no Governor or Timelock needed here
  * We test GovernanceToken behaviour directly
- * 
+ *
  * Test Categories:
  *  - Deployment state
  *  - initializeGoverner
@@ -31,8 +31,8 @@ contract GovernanceTokenTest is Test {
 
     address public deployer = makeAddr("deployer");
     address public governor = makeAddr("governer");
-    address public alice    = makeAddr("alice");
-    address public bob      = makeAddr("bob");
+    address public alice = makeAddr("alice");
+    address public bob = makeAddr("bob");
     address public attacker = makeAddr("attacker");
 
     /*//////////////////////////////////////////////////////////////
@@ -46,12 +46,10 @@ contract GovernanceTokenTest is Test {
     //////////////////////////////////////////////////////////////*/
 
     function setUp() public {
-
         token = new GovernanceToken();
-
     }
 
-     /*//////////////////////////////////////////////////////////////
+    /*//////////////////////////////////////////////////////////////
                     1. DEPLOYMENT STATE TESTS
     //////////////////////////////////////////////////////////////*/
 
@@ -91,7 +89,6 @@ contract GovernanceTokenTest is Test {
      * @notice Deployer should be able to initialize governor successfully
      */
     function test_DeployerCanInitializeGovernor() public {
-
         token.initializeGovernor(governor);
 
         assertEq(token.governor(), governor);
@@ -110,19 +107,16 @@ contract GovernanceTokenTest is Test {
      * @notice Governor cannot be initialized twice — AlreadyInitialized
      */
     function test_Revert_CannotInitializeGovernorTwice() public {
-
         token.initializeGovernor(governor);
 
         vm.expectRevert(GovernanceToken.GovernanceToken__AlreadyInitialized.selector);
         token.initializeGovernor(governor);
-
     }
 
     /**
      * @notice Cannot initialize governor with zero address
      */
     function test_Revert_CannotInitializeGovernorWithZeroAddress() public {
-
         vm.expectRevert(GovernanceToken.GovernanceToken__ZeroAddress.selector);
         token.initializeGovernor(address(0));
     }
@@ -152,7 +146,6 @@ contract GovernanceTokenTest is Test {
      * @notice Non-governor should not be able to mint
      */
     function test_Revert_AttackerCannotMint() public {
-
         token.initializeGovernor(governor);
 
         vm.prank(attacker);
@@ -165,9 +158,7 @@ contract GovernanceTokenTest is Test {
      * @dev Deployer only controls initialization — not minting
      */
     function test_Revert_DeployerCannotMint() public {
-
         token.initializeGovernor(governor);
-
 
         vm.expectRevert(GovernanceToken.GovernanceToken__NotGovernor.selector);
         token.mint(deployer, 1000e18);
@@ -177,7 +168,6 @@ contract GovernanceTokenTest is Test {
      * @notice Minting beyond MAX_SUPPLY should revert
      */
     function test_Revert_CannotMintBeyondMaxSupply() public {
-
         token.initializeGovernor(governor);
 
         // Try to mint more than remaining supply
@@ -193,7 +183,6 @@ contract GovernanceTokenTest is Test {
      * @notice Minting exactly up to MAX_SUPPLY should succeed
      */
     function test_CanMintUpToMaxSupply() public {
-
         token.initializeGovernor(governor);
 
         uint256 remaining = token.MAX_SUPPLY() - token.totalSupply();
@@ -204,7 +193,7 @@ contract GovernanceTokenTest is Test {
         assertEq(token.totalSupply(), token.MAX_SUPPLY());
     }
 
-     /*//////////////////////////////////////////////////////////////
+    /*//////////////////////////////////////////////////////////////
                     4. VOTING POWER SNAPSHOT TESTS
     //////////////////////////////////////////////////////////////*/
 
@@ -221,7 +210,6 @@ contract GovernanceTokenTest is Test {
      * @notice Voting power activates after self-delegation
      */
     function test_VotingPowerAfterSelfDelegation() public {
-
         token.delegate(address(this)); // ← test contract self-delegates
 
         assertEq(token.getVotes(address(this)), token.INITIAL_SUPPLY());
@@ -271,7 +259,6 @@ contract GovernanceTokenTest is Test {
      * @notice Voting power updates correctly when tokens are minted
      */
     function test_VotingPowerUpdatesAfterMint() public {
-
         token.initializeGovernor(governor);
 
         // Alice self-delegates
@@ -291,7 +278,6 @@ contract GovernanceTokenTest is Test {
      * @notice Voting power of delegatee updates when delegator receives tokens
      */
     function test_DelegateeVotingPowerUpdatesWithDelegatorBalance() public {
-
         token.initializeGovernor(governor);
 
         // Alice delegates to bob

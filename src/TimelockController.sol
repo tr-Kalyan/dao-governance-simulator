@@ -12,7 +12,7 @@ import {TimelockController} from "@openzeppelin/contracts/governance/TimelockCon
  * @dev Wraps OpenZeppelin's TimelockController.
  * The Timelock is the actual owner of all protocol contracts - not the Governor.
  * Governor just schedules operations here. Timelock executes them.
- * 
+ *
  * Role System:
  * PROPOSER_ROLE → Only the Governor contract can queue proposals
  * EXECUTOR_ROLE → Anyone can execute after delay (permissionless)
@@ -21,7 +21,6 @@ import {TimelockController} from "@openzeppelin/contracts/governance/TimelockCon
  */
 
 contract DAOTimelockController is TimelockController {
-
     /*//////////////////////////////////////////////////////////////
                             CONSTRUCTOR
     //////////////////////////////////////////////////////////////*/
@@ -31,12 +30,9 @@ contract DAOTimelockController is TimelockController {
      * @param minDelay Minium seconds before a queued proposal can execute
      * @param proposers Array of addresses that can queue proposals (should be Governor only)
      * @param executors Array of addresses that can execute proposals (address(0) = anyone)
-     * @param admin Optional admin address for initial setup - should be renounced after deploy 
+     * @param admin Optional admin address for initial setup - should be renounced after deploy
      */
-    constructor(
-        uint256 minDelay,
-        address[] memory proposers,
-        address[] memory executors,
-        address admin
-    ) TimelockController(minDelay, proposers, executors, admin){}
+    constructor(uint256 minDelay, address[] memory proposers, address[] memory executors, address admin)
+        TimelockController(minDelay, proposers, executors, admin)
+    {}
 }

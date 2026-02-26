@@ -5,7 +5,6 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
-
 /**
  * @title DAOTreasury
  * @author Kalyan
@@ -14,7 +13,7 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol
  * This is the target contract that governance proposals actually call.
  * @dev All fund movements require a password governance vote that has
  * cleared the timelock delay. No individual human can move funds.
- * 
+ *
  * Attack Surface (intentaion for simulator)
  *  - Malicious proposal draining entire treasury
  *  - Reentrancy on ETH release
@@ -31,13 +30,12 @@ contract DAOTreasury is ReentrancyGuard {
     /// @notice The timelock contract — only address that can move funds
     address public immutable timelock;
 
-
     /// @notice Tracks ETH deposited through official channels
     uint256 public ethBalance;
 
     /// @notice Tracks ERC20 token balances deposited through official channels
     /// @dev token address => amount
-    mapping(address => uint256) public erc20Balances;   
+    mapping(address => uint256) public erc20Balances;
 
     /*//////////////////////////////////////////////////////////////
                                 ERRORS
@@ -88,7 +86,7 @@ contract DAOTreasury is ReentrancyGuard {
         timelock = _timelock;
     }
 
-     /*//////////////////////////////////////////////////////////////
+    /*//////////////////////////////////////////////////////////////
                         RECEIVE ETH
     //////////////////////////////////////////////////////////////*/
 
@@ -137,8 +135,8 @@ contract DAOTreasury is ReentrancyGuard {
         if (ethBalance < amount) revert DAOTreasury__InsufficientBalance(); // ← checks mapping not raw balance
 
         ethBalance -= amount; // ← effect: reduce tracked balance first
-        
-        (bool success, ) = to.call{value: amount}("");
+
+        (bool success,) = to.call{value: amount}("");
         if (!success) revert DAOTreasury__ETHTransferFailed();
 
         emit ETHReleased(to, amount);
